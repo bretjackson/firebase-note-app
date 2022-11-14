@@ -79,6 +79,7 @@ const TagPicker = (props: Props) => {
         >
           {Tags.map((tag, index) => (
             <TagItem
+              key={index}
               onClick={() => {
                 props.onSelect(tag);
               }}

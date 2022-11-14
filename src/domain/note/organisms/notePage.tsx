@@ -2,7 +2,6 @@ import { Box } from "@mui/material";
 import MuiAlert, { AlertProps } from "@mui/material/Alert";
 import CircularProgress from "@mui/material/CircularProgress";
 import Snackbar from "@mui/material/Snackbar";
-import Query from "query-string";
 import { forwardRef, useEffect, useState } from "react";
 import noteService from "../../../services/noteService";
 import TagFilter from "../atoms/tagFilter";
@@ -11,7 +10,7 @@ import NoteItem from "../molecules/noteItem";
 type Props = {};
 
 const NotePage = (props: Props) => {
-  const [data, setData] = useState([]);
+  const [data, setData] = useState<any[]>([]);
   const [showLoading, setShowLoading] = useState<boolean>(false);
   const [filter, setFilter] = useState<any>(null);
 
@@ -27,7 +26,7 @@ const NotePage = (props: Props) => {
     try {
       setShowLoading(true);
       let result = await noteService.post(e);
-      if (result.status === 201) {
+      if (result?.id) {
         await getData();
         handleSetAlert("success", "record was created successfully");
       }
@@ -41,11 +40,10 @@ const NotePage = (props: Props) => {
   const updateNote = async (e: any, id: any) => {
     try {
       setShowLoading(true);
-      let result = await noteService.patch(e, id);
-      if (result.status === 200) {
+      noteService.update(e, id).then(async () => {
         await getData();
         handleSetAlert("success", "record was updated successfully");
-      }
+      });
     } catch (e) {
       handleSetAlert("error", e.message);
     } finally {
@@ -56,11 +54,10 @@ const NotePage = (props: Props) => {
   const deleteNote = async (id: any) => {
     try {
       setShowLoading(true);
-      let result = await noteService.delete(id);
-      if (result.status === 204) {
+      noteService.delete(id).then(async () => {
         await getData();
         handleSetAlert("success", "record was deleted successfully");
-      }
+      });
     } catch (e) {
       handleSetAlert("error", e.message);
     } finally {
@@ -71,9 +68,9 @@ const NotePage = (props: Props) => {
   const getData = async () => {
     try {
       setShowLoading(true);
-      let result = await noteService.get(Query.stringify(filter));
-      if (result.status === 200) {
-        setData(result.data);
+      let result = await noteService.get(filter);
+      if (result?.docs) {
+        setData(result.docs);
       }
     } catch (e) {
       handleSetAlert("error", e.message);
@@ -176,14 +173,14 @@ const NotePage = (props: Props) => {
           return (
             <NoteItem
               key={i}
-              title={x.title}
-              body={x.body}
-              tag={x.tag}
+              title={x.data().title}
+              body={x.data().body}
+              tag={x.data().tag}
               onDelete={async () => {
-                await deleteNote(x._id);
+                await deleteNote(x.id);
               }}
               onUpdate={async (e: any) => {
-                await updateNote(e, x._id);
+                await updateNote(e, x.id);
               }}
               isNew={false}
             />
