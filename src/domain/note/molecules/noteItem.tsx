@@ -17,8 +17,8 @@ type Props = {
 };
 
 const NoteItem = (props: Props) => {
-  const [title, setTitle] = useState(props.title);
-  const [body, setBody] = useState(props.body);
+  const [title, setTitle] = useState(props.title ? props.title : "");
+  const [body, setBody] = useState(props.body ? props.body : "");
   const [tag, settag] = useState(props.tag ? props.tag : Tags[0].name);
 
   const [style, setStyle] = useState({

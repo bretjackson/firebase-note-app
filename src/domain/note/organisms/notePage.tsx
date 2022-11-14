@@ -22,11 +22,13 @@ const NotePage = (props: Props) => {
 
   useEffect(() => {}, [data]);
 
+
   const createNote = async (e: any) => {
     try {
       setShowLoading(true);
       let result = await noteService.post(e);
       if (result?.id) {
+        console.log("updating data after post");
         await getData();
         handleSetAlert("success", "record was created successfully");
       }
@@ -69,6 +71,7 @@ const NotePage = (props: Props) => {
     try {
       setShowLoading(true);
       let result = await noteService.get(filter);
+      console.log("results: ", result);
       if (result?.docs) {
         setData(result.docs);
       }

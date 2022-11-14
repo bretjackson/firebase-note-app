@@ -1,6 +1,6 @@
-import { db } from "../config/firebase";
+import { db, auth } from "../config/firebase";
 import { collection, addDoc, doc, updateDoc, query, where, getDocs, deleteDoc } from "firebase/firestore";
-import { auth } from "../config/firebase";
+
 
 class noteService {
   readonly collectionName: string = "users";
@@ -62,11 +62,17 @@ class noteService {
   }
 
   async delete(id: any) {
-    try{
-      let result: any = await deleteDoc(doc(db, this.collectionName, id));
-      return result;
-    } catch(e){
-      console.error("Error deleting document: ", e);
+    const user = auth.currentUser;
+    if (user){
+      try {
+        const userDocRef = doc(db, this.collectionName, user.uid);
+        const colRef = collection(userDocRef, this.subCollectionName)
+        const docRef  = doc(colRef, id);
+        let result: any = await deleteDoc(docRef);
+        return result;
+      } catch(e){
+        console.error("Error deleting document: ", e);
+      }
     }
   }
 }
